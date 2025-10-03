@@ -121,7 +121,7 @@ class SwitchSettingCard(SettingCard):
     checkedChanged = pyqtSignal(bool)
 
     def __init__(self, icon: Union[str, QIcon, FluentIconBase], title, content=None,
-                 configItem: ConfigItem = None, parent=None):
+                 configItem: ConfigItem = None, parent=None, on_txt: str = 'On', off_txt: str = 'Off'):
         """
         Parameters
         ----------
@@ -142,8 +142,10 @@ class SwitchSettingCard(SettingCard):
         """
         super().__init__(icon, title, content, parent)
         self.configItem = configItem
+        self.on_txt = on_txt
+        self.off_txt = off_txt
         self.switchButton = SwitchButton(
-            self.tr('Off'), self, IndicatorPosition.RIGHT)
+            self.tr(self.off_txt), self, IndicatorPosition.RIGHT)
 
         if configItem:
             self.setValue(qconfig.get(configItem))
@@ -166,7 +168,7 @@ class SwitchSettingCard(SettingCard):
 
         self.switchButton.setChecked(isChecked)
         self.switchButton.setText(
-            self.tr('On') if isChecked else self.tr('Off'))
+            self.tr(self.on_txt) if isChecked else self.tr(self.off_txt))
 
     def setChecked(self, isChecked: bool):
         self.setValue(isChecked)
