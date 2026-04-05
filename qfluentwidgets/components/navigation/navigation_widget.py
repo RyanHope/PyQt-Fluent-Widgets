@@ -1,5 +1,6 @@
 # coding:utf-8
 from typing import Union, List
+from PyQt5 import sip
 
 from PyQt5.QtCore import (Qt, pyqtSignal, QRect, QRectF, QPropertyAnimation, pyqtProperty, QMargins,
                           QEasingCurve, QPoint, QEvent, QParallelAnimationGroup)
@@ -580,7 +581,22 @@ class NavigationTreeWidget(NavigationTreeWidgetBase):
         root.nodeDepth = self.nodeDepth
 
         root.clicked.connect(self.clicked)
-        self.selectedChanged.connect(root.setSelected)
+        root.itemWidget.clicked.connect(self.itemWidget.clicked)
+        root.itemWidget.itemClicked.connect(self.itemWidget.itemClicked)
+
+        def sync_selected(isSelected: bool):
+            if not sip.isdeleted(root):
+                root.setSelected(isSelected)
+
+        self.selectedChanged.connect(sync_selected)
+
+        def cleanup():
+            try:
+                self.selectedChanged.disconnect(sync_selected)
+            except TypeError:
+                pass
+
+        root.destroyed.connect(cleanup)
 
         for child in self.treeChildren:
             root.addChild(child.clone())
